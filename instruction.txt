@@ -1,0 +1,9 @@
+INSTUCTION
+
+Change colors:
+    Red    Green    Blue
++   "Q"    "W"        "E"
+-    "A"    "S"         "D"
+
+Show/hide instruction:    "I"
+Show/hide RGB levels:  "K"

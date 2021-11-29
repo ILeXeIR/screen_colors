@@ -7,15 +7,18 @@ class Instructions():
 	def __init__(self, colors):
 		self.screen = colors.screen
 		self.screen_rect = colors.screen.get_rect()
-		self.message = "Instructions"
-		self.font = pygame.font.Font(None, 30)
+		self.message = self._read_instruction()
+		self.font = pygame.font.SysFont('arial', 30)
 		self.text_color = (230, 230, 230)
-		self.text = self.font.render(self.message, 1, self.text_color)
-		self.rect = self.text.get_rect()
-		self.rect.topleft = (100, 50)
-		
+				
 	def blitme(self):
-		self.screen.blit(self.text, self.rect)
+		x = (100, 50)
+		for line in self.message:
+			text = self.font.render(line.rstrip(), 1, self.text_color)
+			rect = text.get_rect()
+			rect.topleft = x
+			self.screen.blit(text, rect)
+			x = rect.bottomleft
 
 	def update(self):
 		x = colors.red + colors.green + colors.blue
@@ -23,7 +26,12 @@ class Instructions():
 			self.text_color = (30, 30, 30)
 		else:
 			self.text_color = (230, 230, 230)
-		self.text = self.font.render(self.message, 1, self.text_color)
+
+	def _read_instruction(self):
+		filename = 'instruction.txt'
+		with open(filename) as file_object:
+			return file_object.readlines()
+
 
 class ColoredScreen():
 	#Класс для получения окна с возможной регулировкой цвета
