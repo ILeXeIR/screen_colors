@@ -33,6 +33,30 @@ class Instructions():
 			return file_object.readlines()
 
 
+class RGB():
+	#Класс для отображения уровней RGB на экране
+
+	def __init__(self, colors):
+		self.screen = colors.screen
+		self.screen_rect = colors.screen.get_rect()
+		self.font = pygame.font.Font(None, 50)
+		self.text_color = (230, 230, 230)
+				
+	def blitme(self):
+		message = f'R {colors.red} / G {colors.green} / B {colors.blue}'
+		text = self.font.render(message, 1, self.text_color)
+		rect = text.get_rect()
+		rect.midbottom = self.screen_rect.midbottom
+		self.screen.blit(text, rect)
+
+	def update(self):
+		x = colors.red + colors.green + colors.blue
+		if x > 350:
+			self.text_color = (30, 30, 30)
+		else:
+			self.text_color = (230, 230, 230)
+
+
 class ColoredScreen():
 	#Класс для получения окна с возможной регулировкой цвета
 
@@ -52,8 +76,10 @@ class ColoredScreen():
 		self.green_less_flag = False
 		self.blue_less_flag = False
 		self.i_flag = True
+		self.k_flag = False
 
 		self.instruct = Instructions(self)
+		self.rgb_levels = RGB(self)
 
 	def run_program(self):
 		#Запуск основной программы
@@ -61,6 +87,7 @@ class ColoredScreen():
 			self._check_events()
 			self._update_color()
 			self.instruct.update()
+			self.rgb_levels.update()
 			self._update_screen()
 
 	def _update_color(self):
@@ -107,6 +134,8 @@ class ColoredScreen():
 			self.blue_less_flag = True
 		elif event.key == pygame.K_i:
 			self.i_flag = not self.i_flag
+		elif event.key == pygame.K_k:
+			self.k_flag = not self.k_flag
 
 
 	def _check_keyup_events(self, event):
@@ -129,6 +158,8 @@ class ColoredScreen():
 		self.screen.fill((self.red, self.green, self.blue))
 		if self.i_flag:
 			self.instruct.blitme()
+		if self.k_flag:
+			self.rgb_levels.blitme()
 		pygame.display.flip()
 
 if __name__ == '__main__':
