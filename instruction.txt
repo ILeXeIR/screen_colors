@@ -7,3 +7,6 @@ Change colors:
 
 Show/hide instruction:    "I"
 Show/hide RGB levels:  "K"
+Random color: "R"
+
+Exit:  "ESC"

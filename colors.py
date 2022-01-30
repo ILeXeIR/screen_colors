@@ -1,5 +1,6 @@
 import sys
 import pygame
+import random
 
 class Instructions():
 	#Класс для отображения инструкций по управлению на экране
@@ -43,7 +44,7 @@ class RGB():
 		self.text_color = (230, 230, 230)
 				
 	def blitme(self):
-		message = f'R {colors.red} / G {colors.green} / B {colors.blue}'
+		message = 'R {:.2f} / G {:.2f} / B {:.2f}'.format(colors.red, colors.green, colors.blue)
 		text = self.font.render(message, 1, self.text_color)
 		rect = text.get_rect()
 		rect.midbottom = self.screen_rect.midbottom
@@ -63,6 +64,8 @@ class ColoredScreen():
 	def __init__(self):
 		pygame.init()
 		self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+		print(pygame.display.get_desktop_sizes()[0][1])
+		#print(pygame.display.get_desktop_sizes()[0, 1].isintager())
 		self.screen_rect = self.screen.get_rect()
 		pygame.display.set_caption('Colors')
 
@@ -88,6 +91,7 @@ class ColoredScreen():
 			self._update_color()
 			self.instruct.update()
 			self.rgb_levels.update()
+			pygame.mouse.set_visible(False)
 			self._update_screen()
 
 	def _update_color(self):
@@ -95,16 +99,28 @@ class ColoredScreen():
 		speed = 0.5
 		if self.red_more_flag and self.red < 255:
 			self.red += speed
+			if self.red > 255:
+				self.red = 255
 		if self.red_less_flag and self.red > 0:
 			self.red -= speed
+			if self.red < 0:
+				self.red = 0
 		if self.green_more_flag and self.green < 255:
 			self.green += speed
+			if self.green > 255:
+				self.green = 255
 		if self.green_less_flag and self.green > 0:
 			self.green -= speed
+			if self.green < 0:
+				self.green = 0
 		if self.blue_more_flag and self.blue < 255:
 			self.blue += speed
+			if self.blue > 255:
+				self.blue = 255
 		if self.blue_less_flag and self.blue > 0:
 			self.blue -= speed
+			if self.blue < 0:
+				self.blue = 0
 
 	def _check_events(self):
 		#Обрабатывает нажатия клавиш
@@ -118,7 +134,7 @@ class ColoredScreen():
 
 	def _check_keydown_events(self, event):
 		#Реакция на нажатие клавиш
-		if event.key == 27:
+		if event.key == pygame.K_ESCAPE:
 			sys.exit()
 		elif event.key == pygame.K_q:
 			self.red_more_flag = True
@@ -136,6 +152,8 @@ class ColoredScreen():
 			self.i_flag = not self.i_flag
 		elif event.key == pygame.K_k:
 			self.k_flag = not self.k_flag
+		elif event.key == pygame.K_r:
+			self._random_color()
 
 
 	def _check_keyup_events(self, event):
@@ -152,6 +170,13 @@ class ColoredScreen():
 			self.blue_more_flag = False
 		elif event.key == pygame.K_d:
 			self.blue_less_flag = False
+
+	def _random_color(self):
+		#Выбрать рандомный цвет
+		self.red = random.uniform(0, 255)
+		self.green = random.uniform(0, 255)
+		self.blue = random.uniform(0, 255)
+
 
 	def _update_screen(self):
 		#Обновляет изображения на экране и отображает новый экран
