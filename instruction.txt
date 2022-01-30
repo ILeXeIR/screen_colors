@@ -9,4 +9,6 @@ Show/hide instruction:    "I"
 Show/hide RGB levels:  "K"
 Random color: "R"
 
+Changing colors (on/off): "C"
+
 Exit:  "ESC"

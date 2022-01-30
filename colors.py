@@ -50,6 +50,16 @@ class RGB():
 		rect.midbottom = self.screen_rect.midbottom
 		self.screen.blit(text, rect)
 
+		if colors.c_flag:
+			#При включении смены цветов отображает целевой цвет, к которому стремятся значения RGB
+			message_c = 'Target: R {:.2f} / G {:.2f} / B {:.2f}'.format(
+				colors.new_red, colors.new_green, colors.new_blue)
+			text_c = self.font.render(message_c, 1, self.text_color)
+			rect_c = text_c.get_rect()
+			rect_c.midbottom = rect.midtop
+			rect_c.y -= 20
+			self.screen.blit(text_c, rect_c)
+
 	def update(self):
 		x = colors.red + colors.green + colors.blue
 		if x > 350:
@@ -64,10 +74,9 @@ class ColoredScreen():
 	def __init__(self):
 		pygame.init()
 		self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-		print(pygame.display.get_desktop_sizes()[0][1])
-		#print(pygame.display.get_desktop_sizes()[0, 1].isintager())
 		self.screen_rect = self.screen.get_rect()
 		pygame.display.set_caption('Colors')
+		self.clock = pygame.time.Clock()
 
 		self.red = 0
 		self.green = 0
@@ -78,8 +87,9 @@ class ColoredScreen():
 		self.red_less_flag = False
 		self.green_less_flag = False
 		self.blue_less_flag = False
-		self.i_flag = True
-		self.k_flag = False
+		self.i_flag = True #Отображение инструкции
+		self.k_flag = False #Отображение служебной информации
+		self.c_flag = False #Запуск плавной смены цветов
 
 		self.instruct = Instructions(self)
 		self.rgb_levels = RGB(self)
@@ -88,7 +98,10 @@ class ColoredScreen():
 		#Запуск основной программы
 		while True:
 			self._check_events()
-			self._update_color()
+			if self.c_flag:
+				self._changing_colors()
+			else:
+				self._update_color()
 			self.instruct.update()
 			self.rgb_levels.update()
 			pygame.mouse.set_visible(False)
@@ -96,7 +109,7 @@ class ColoredScreen():
 
 	def _update_color(self):
 		#Обновляет цвет при нажатии соответствующих клавиш
-		speed = 0.5
+		speed = 7.5
 		if self.red_more_flag and self.red < 255:
 			self.red += speed
 			if self.red > 255:
@@ -152,8 +165,12 @@ class ColoredScreen():
 			self.i_flag = not self.i_flag
 		elif event.key == pygame.K_k:
 			self.k_flag = not self.k_flag
-		elif event.key == pygame.K_r:
+		elif event.key == pygame.K_r and not self.c_flag:
 			self._random_color()
+		elif event.key == pygame.K_c:
+			self.c_flag = not self.c_flag
+			if self.c_flag:
+				self.new_random_flag = True #Флаг для функции _changing_colors
 
 
 	def _check_keyup_events(self, event):
@@ -177,6 +194,23 @@ class ColoredScreen():
 		self.green = random.uniform(0, 255)
 		self.blue = random.uniform(0, 255)
 
+	def _changing_colors(self):
+		#Плавная смена цветов до рандомного.
+		changing_speed = 2
+		if self.new_random_flag:
+			self.new_red = random.uniform(0, 255)
+			self.new_green = random.uniform(0, 255)
+			self.new_blue = random.uniform(0, 255)
+			self.red_step = (self.new_red - self.red)/1000
+			self.green_step = (self.new_green - self.green)/1000
+			self.blue_step = (self.new_blue - self.blue)/1000
+			self.new_random_flag = False
+		self.red += self.red_step * changing_speed
+		self.green += self.green_step * changing_speed
+		self.blue += self.blue_step * changing_speed
+		if ((self.red_step > 0 and self.red >= self.new_red) or
+					(self.red_step < 0 and self.red <= self.new_red)):
+			self.new_random_flag = True
 
 	def _update_screen(self):
 		#Обновляет изображения на экране и отображает новый экран
@@ -186,6 +220,7 @@ class ColoredScreen():
 		if self.k_flag:
 			self.rgb_levels.blitme()
 		pygame.display.flip()
+		self.clock.tick(30)
 
 if __name__ == '__main__':
 	#создание экземпляра и запуск игры
